@@ -27,7 +27,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    public Button veneno;
     public Button buscar_disp;
     public Button ver_disp;
     private ArrayList<BluetoothDevice> mDeviceList = new ArrayList<BluetoothDevice>();
@@ -49,8 +48,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        veneno=findViewById(R.id.tirar_ven);
-        veneno.setOnClickListener(botonesListeners);
 
         buscar_disp = findViewById(R.id.buscar_disp);
         buscar_disp.setOnClickListener(botonesListeners);
@@ -84,21 +81,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v)
         {
-            if(v.getId()==R.id.tirar_ven)
-            {
-                    Intent intent;
-
-                    //se genera un Intent para poder lanzar la activity principal
-                    intent=new Intent(MainActivity.this,TirarVen.class);
-
-                    //Se le agrega al intent los parametros que se le quieren pasar a la activyt principal
-                    //cuando se lanzado
-                    intent.putExtra("textoOrigen","Hola Mundo");
-
-                    //se inicia la activity principal
-                    startActivity(intent);
-            }
-            else if(v.getId()==R.id.ver_disp)
+            if(v.getId()==R.id.ver_disp)
             {
                 if(mBluetoothAdapter.isDiscovering())
                     mBluetoothAdapter.cancelDiscovery();
@@ -156,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
             //Si finalizo la busqueda de dispositivos bluethoot
             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))
             {
+                unregisterReceiver(mReceiver);
                 //se cierra el cuadro de dialogo de busqueda
                 //mProgressDlg.dismiss();
 
