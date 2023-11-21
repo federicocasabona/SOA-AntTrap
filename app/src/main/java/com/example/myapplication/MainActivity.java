@@ -82,8 +82,11 @@ public class MainActivity extends AppCompatActivity {
             {
                 if(mBluetoothAdapter.isDiscovering())
                     showToast("Ya se estan buscando dispositivos");
-                else
+                else {
+                    buscar_disp.setText("Buscando dispositivos...");
+                    buscar_disp.setEnabled(false);
                     mBluetoothAdapter.startDiscovery();
+                }
             }
         }
     };

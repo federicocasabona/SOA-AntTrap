@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -37,6 +38,7 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
     public Button hayHormigas;
     public Button salir;
     public Button humedad;
+    public TextView txtEstado;
     private static String address = null;
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
@@ -71,6 +73,8 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
 
         humedad = findViewById(R.id.hay_humedad);
         humedad.setOnClickListener(botonesListeners);
+
+        txtEstado = findViewById(R.id.txtEstado);
 
         address= extras.getString("Direccion_Bluethoot");
 
@@ -138,6 +142,17 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
         }
     }
 
+    @SuppressLint("NewApi")
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mConnectedThread.write("E");
+        //Intent intentServ = new Intent(this, BluetoothService.class);
+        //startForegroundService(intentServ);
+    }
+
+
+
 
     private void registerSenser()
     {
@@ -153,6 +168,7 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
     private Handler Handler_Msg_Hilo_Principal ()
     {
         return new Handler() {
+            @SuppressLint("HandlerLeak")
             public void handleMessage(android.os.Message msg)
             {
                 //si se recibio un msj del hilo secundario
@@ -163,7 +179,8 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
                     showToast(readMessage);
                     recDataString.append(readMessage);
                     int endOfLineIndex = recDataString.indexOf("\r\n");
-
+                    processMessage(readMessage);
+                    showNotification(readMessage);
                     //cuando recibo toda una linea la muestro en el layout
                     if (endOfLineIndex > 0)
                     {
@@ -172,17 +189,37 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
                         recDataString.delete(0, recDataString.length());
                         //showToast(dataInPrint);
 
-                        NotificationAsyncThread notifThread = new NotificationAsyncThread();
-                        Object[] params = new Object[2];
-                        params[0] = (Object) this;
-                        params[1] = (Object) dataInPrint;
-                        notifThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-                        showNotification(dataInPrint);
+
+                        //NotificationAsyncThread notifThread = new NotificationAsyncThread();
+                        //Object[] params = new Object[2];
+                        //params[0] = (Object) this;
+                        //params[1] = (Object) dataInPrint;
+                        //notifThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+                        //showNotification(dataInPrint);
                     }
                 }
             }
         };
 
+    }
+
+    private void processMessage(String msg)  {
+        if(msg.contains("S"))
+        {
+            txtEstado.setText("Hay hormigas");
+        }
+        else if(msg.contains("N")) {
+            txtEstado.setText("No hay hormigas");
+        }
+        else if(msg.contains("H")) {
+            txtEstado.setText("Humedad alta");
+        }
+        else if(msg.contains("L")) {
+            txtEstado.setText("Humedad baja");
+        }
+        else if(msg.contains("enen")) {
+            txtEstado.setText("Debe recargar el veneno");
+        }
     }
 
 
