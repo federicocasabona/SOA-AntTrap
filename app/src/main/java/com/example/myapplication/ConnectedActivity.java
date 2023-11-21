@@ -179,9 +179,12 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
                     showToast(readMessage);
                     recDataString.append(readMessage);
                     int endOfLineIndex = recDataString.indexOf("\r\n");
-                    processMessage(readMessage);
-                    showNotification(readMessage);
                     //cuando recibo toda una linea la muestro en el layout
+
+
+                    showNotification(readMessage);
+                    processMessage(readMessage);
+
                     if (endOfLineIndex > 0)
                     {
                         String dataInPrint = recDataString.substring(0, endOfLineIndex);
@@ -236,6 +239,8 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
     @SuppressLint("MissingPermission")
     private void showNotification(String data)
     {
+        if(data.isEmpty())
+            return;
         createChannel();
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
