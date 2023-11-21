@@ -207,7 +207,10 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
     }
 
     private void processMessage(String msg)  {
-        if(msg.contains("S"))
+        if(msg.contains("enen")) {
+            txtEstado.setText("Debe recargar el veneno");
+        }
+        else if(msg.contains("S"))
         {
             txtEstado.setText("Hay hormigas");
         }
@@ -219,9 +222,6 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
         }
         else if(msg.contains("L")) {
             txtEstado.setText("Humedad baja");
-        }
-        else if(msg.contains("enen")) {
-            txtEstado.setText("Debe recargar el veneno");
         }
     }
 
