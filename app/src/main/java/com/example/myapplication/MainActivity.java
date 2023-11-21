@@ -6,7 +6,6 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -28,7 +27,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     public Button buscar_disp;
-    public Button ver_disp;
     private ArrayList<BluetoothDevice> mDeviceList = new ArrayList<BluetoothDevice>();
     private BluetoothAdapter mBluetoothAdapter;
     //private ProgressDialog mProgressDlg;
@@ -41,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
             android.Manifest.permission.READ_PHONE_STATE,
             android.Manifest.permission.BLUETOOTH_SCAN,
             android.Manifest.permission.BLUETOOTH_CONNECT,
-            android.Manifest.permission.ACCESS_FINE_LOCATION};
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS};
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -51,9 +50,6 @@ public class MainActivity extends AppCompatActivity {
 
         buscar_disp = findViewById(R.id.buscar_disp);
         buscar_disp.setOnClickListener(botonesListeners);
-
-        ver_disp = findViewById(R.id.ver_disp);
-        ver_disp.setOnClickListener(botonesListeners);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -75,27 +71,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
     View.OnClickListener botonesListeners = new View.OnClickListener()
     {
         @SuppressLint("MissingPermission")
         @Override
         public void onClick(View v)
         {
-            if(v.getId()==R.id.ver_disp)
-            {
-                if(mBluetoothAdapter.isDiscovering())
-                    mBluetoothAdapter.cancelDiscovery();
-                else
-                    showToast("No hay una busqueda activa");
-                //Intent intent;
-
-                //intent=new Intent(MainActivity.this, DeviceListActivity.class);
-
-                //intent.putExtra();
-
-                //startActivity(intent);
-            }
-            else if(v.getId()==R.id.buscar_disp)
+            if(v.getId()==R.id.buscar_disp)
             {
                 if(mBluetoothAdapter.isDiscovering())
                     showToast("Ya se estan buscando dispositivos");
@@ -164,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void showToast(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     private DialogInterface.OnClickListener btnCancelarDialogListener = new DialogInterface.OnClickListener() {
@@ -203,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case MULTIPLE_PERMISSIONS: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -214,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                         perStr += "\n" + per;
                     }
                     // permissions list of don't granted permission
-                    Toast.makeText(this,"ATENCION:falta de Permisos:" + perStr, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "ATENCION:falta de Permisos:" + perStr, Toast.LENGTH_LONG).show();
                 }
                 return;
             }

@@ -4,25 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#018F24"
+    android:background="#021B73"
     tools:context=".ConnectedActivity">
 
     <Button
         android:id="@+id/hayAnts"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="286dp"
+        android:layout_height="50dp"
         android:text="Hay hormigas?"
+        android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/tirar_ven"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.49" />
+        app:layout_constraintVertical_bias="0.497" />
 
     <Button
         android:id="@+id/tirar_ven"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="307dp"
+        android:layout_height="56dp"
         android:text="Tirar veneno"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -32,10 +35,11 @@
 
     <Button
         android:id="@+id/hay_humedad"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="297dp"
+        android:layout_height="55dp"
         android:layout_marginTop="73dp"
         android:text="Consultar humedad"
+        android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/tirar_ven"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,11 +47,14 @@
 
     <Button
         android:id="@+id/salir"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="299dp"
+        android:layout_height="48dp"
         android:text="Salir"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tirar_ven" />
+        app:layout_constraintTop_toBottomOf="@+id/tirar_ven"
+        app:layout_constraintVertical_bias="0.789" />
 </androidx.constraintlayout.widget.ConstraintLayout>

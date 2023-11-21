@@ -4,40 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/holo_green_light"
+    android:background="#021B73"
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/CambiarT"
-        android:layout_width="144dp"
-        android:layout_height="52dp"
-        android:text="Cambiar Time Out"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
         android:id="@+id/buscar_disp"
-        android:layout_width="144dp"
+        android:layout_width="306dp"
         android:layout_height="52dp"
         android:text="Buscar dispositivos"
-        app:layout_constraintBottom_toTopOf="@+id/CambiarT"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.456"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.503" />
-
-    <Button
-        android:id="@+id/ver_disp"
-        android:layout_width="144dp"
-        android:layout_height="52dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="8dp"
-        android:text="Ver dispositivos"
-        app:layout_constraintBottom_toTopOf="@+id/CambiarT"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buscar_disp" />
+        app:layout_constraintVertical_bias="0.929" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

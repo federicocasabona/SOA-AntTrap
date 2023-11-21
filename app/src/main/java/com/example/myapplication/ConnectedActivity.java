@@ -1,12 +1,22 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -16,11 +26,13 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.UUID;
 
 
-public class ConnectedActivity extends AppCompatActivity {
+public class ConnectedActivity extends AppCompatActivity implements SensorEventListener{
 
+    private final static float ACC = 30;
     public Button veneno;
     public Button hayHormigas;
     public Button salir;
@@ -32,6 +44,9 @@ public class ConnectedActivity extends AppCompatActivity {
     final int handlerState = 0;
     Handler bluetoothIn;
     private StringBuilder recDataString = new StringBuilder();
+    private int notificationId = 1;
+    private static final String CHANNEL_ID = "1000";
+    private SensorManager accelerometer;
 
 
     private static final UUID BTMODULEUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -64,6 +79,8 @@ public class ConnectedActivity extends AppCompatActivity {
 
         bluetoothIn = Handler_Msg_Hilo_Principal();
 
+        accelerometer = (SensorManager) getSystemService(SENSOR_SERVICE);
+
         //se realiza la conexion del Bluethoot crea y se conectandose a atraves de un socket
         try
         {
@@ -92,7 +109,46 @@ public class ConnectedActivity extends AppCompatActivity {
         mConnectedThread = new ConnectedThread(btSocket);
         mConnectedThread.start();
         mConnectedThread.write("I");
+
+        /*Intent intentServ = new Intent(this, BluetoothService.class);
+        startForegroundService(intentServ);*/
+
+        registerSenser();
     }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event)
+    {
+
+        int sensorType = event.sensor.getType();
+
+        float[] values = event.values;
+
+        if (sensorType == Sensor.TYPE_ACCELEROMETER)
+        {
+            if ((Math.abs(values[0]) > ACC || Math.abs(values[1]) > ACC || Math.abs(values[2]) > ACC)) {
+                showToast("Se esta sacudiendo el telefono");
+                mConnectedThread.write("R");
+            }
+        }
+    }
+
+
+    private void registerSenser()
+    {
+        accelerometer.registerListener(this, accelerometer.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    private void unregisterSenser()
+    {
+        accelerometer.unregisterListener(this);
+    }
+
 
     private Handler Handler_Msg_Hilo_Principal ()
     {
@@ -114,7 +170,14 @@ public class ConnectedActivity extends AppCompatActivity {
                         String dataInPrint = recDataString.substring(0, endOfLineIndex);
 
                         recDataString.delete(0, recDataString.length());
-                        showToast(dataInPrint);
+                        //showToast(dataInPrint);
+
+                        NotificationAsyncThread notifThread = new NotificationAsyncThread();
+                        Object[] params = new Object[2];
+                        params[0] = (Object) this;
+                        params[1] = (Object) dataInPrint;
+                        notifThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+                        showNotification(dataInPrint);
                     }
                 }
             }
@@ -133,10 +196,40 @@ public class ConnectedActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    //H hay Hormigas?
-    //R tirar veneno
-    //C consultar humedad
-    //I iniciar
+    @SuppressLint("MissingPermission")
+    private void showNotification(String data)
+    {
+        createChannel();
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setContentTitle("Evento de Arduino")
+                .setContentText("Mensaje leido: " + data)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(notificationId++, builder.build());
+    }
+
+    private void createChannel()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = CHANNEL_ID;
+            String description = CHANNEL_ID;
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this.
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    //H hay Hormigas? --> S/N
+    //R tirar veneno --> L/H
+    //C consultar humedad -->
+    //I iniciar  --> A, todo ok
     //E salir
     View.OnClickListener botonesListeners = new View.OnClickListener()
     {
@@ -159,6 +252,7 @@ public class ConnectedActivity extends AppCompatActivity {
             else if(v.getId()==R.id.salir)
             {
                 mConnectedThread.write("E");
+                finish();
             }
         }
     };
