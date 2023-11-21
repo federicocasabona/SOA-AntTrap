@@ -43,8 +43,13 @@ public class BluetoothService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         try{
-            NotificationChannel channel = new NotificationChannel("CHANNEL_ID", "PennSkanvTicChannel", NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("Canal de notificación");
+            NotificationChannel channel = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                channel = new NotificationChannel("CHANNEL_ID", "PennSkanvTicChannel", NotificationManager.IMPORTANCE_HIGH);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                channel.setDescription("Canal de notificación");
+            }
             notificationManager = NotificationManagerCompat.from(this);
 
             notificationManager.createNotificationChannel(channel);
@@ -52,9 +57,12 @@ public class BluetoothService extends Service {
             PendingIntent pendingIntent =
                     PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
             Notification notification =
-                    new Notification.Builder(this, "CHANNEL_ID")
-                            .setContentIntent(pendingIntent)
-                            .build();
+                    null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                notification = new Notification.Builder(this, "CHANNEL_ID")
+                        .setContentIntent(pendingIntent)
+                        .build();
+            }
             startForeground(ONGOING_NOTIFICATION_ID, notification);
             runTimmer();
 
