@@ -16,10 +16,6 @@ import android.content.IntentFilter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-/*********************************************************************************************************
- * Activity que muestra el listado de los dispositivos bluethoot encontrados
- **********************************************************************************************************/
-
 public class DeviceListActivity extends Activity
 {
     private ListView mListView;
