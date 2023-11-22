@@ -85,7 +85,6 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
 
         accelerometer = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        //se realiza la conexion del Bluethoot crea y se conectandose a atraves de un socket
         try
         {
             btSocket = createBluetoothSocket(device);
@@ -94,7 +93,6 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
         {
             showToast( "La creacción del Socket fallo");
         }
-        // Establish the Bluetooth socket connection.
         try
         {
             btSocket.connect();
@@ -107,15 +105,11 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
             }
             catch (IOException e2)
             {
-                //insert code to deal with this
             }
         }
         mConnectedThread = new ConnectedThread(btSocket);
         mConnectedThread.start();
         mConnectedThread.write("I");
-
-        /*Intent intentServ = new Intent(this, BluetoothService.class);
-        startForegroundService(intentServ);*/
 
         registerSenser();
     }
@@ -147,8 +141,6 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
     protected void onStop() {
         super.onStop();
         mConnectedThread.write("E");
-        //Intent intentServ = new Intent(this, BluetoothService.class);
-        //startForegroundService(intentServ);
     }
 
 
@@ -171,17 +163,12 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
             @SuppressLint("HandlerLeak")
             public void handleMessage(android.os.Message msg)
             {
-                //si se recibio un msj del hilo secundario
                 if (msg.what == handlerState)
                 {
-                    //voy concatenando el msj
                     String readMessage = (String) msg.obj;
                     showToast(readMessage);
                     recDataString.append(readMessage);
                     int endOfLineIndex = recDataString.indexOf("\r\n");
-                    //cuando recibo toda una linea la muestro en el layout
-
-
                     showNotification(readMessage);
                     processMessage(readMessage);
 
@@ -190,15 +177,6 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
                         String dataInPrint = recDataString.substring(0, endOfLineIndex);
 
                         recDataString.delete(0, recDataString.length());
-                        //showToast(dataInPrint);
-
-
-                        //NotificationAsyncThread notifThread = new NotificationAsyncThread();
-                        //Object[] params = new Object[2];
-                        //params[0] = (Object) this;
-                        //params[1] = (Object) dataInPrint;
-                        //notifThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-                        //showNotification(dataInPrint);
                     }
                 }
             }
@@ -261,16 +239,14 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this.
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
     }
 
     //H hay Hormigas? --> S/N
-    //R tirar veneno --> L/H
-    //C consultar humedad -->
+    //R tirar veneno
+    //C consultar humedad --> L/H
     //I iniciar  --> A, todo ok
     //E salir
     View.OnClickListener botonesListeners = new View.OnClickListener()
@@ -304,7 +280,6 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
 
-        //Constructor de la clase del hilo secundario
         public ConnectedThread(BluetoothSocket socket)
         {
             InputStream tmpIn = null;
@@ -312,7 +287,6 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
 
             try
             {
-                //Create I/O streams for connection
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) { }
@@ -321,23 +295,18 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
             mmOutStream = tmpOut;
         }
 
-        //metodo run del hilo, que va a entrar en una espera activa para recibir los msjs del HC05
         public void run()
         {
             byte[] buffer = new byte[256];
             int bytes;
 
-            //el hilo secundario se queda esperando mensajes del HC05
             while (true)
             {
                 try
                 {
-                    //se leen los datos del Bluethoot
                     bytes = mmInStream.read(buffer);
                     String readMessage = new String(buffer, 0, bytes);
 
-                    //se muestran en el layout de la activity, utilizando el handler del hilo
-                    // principal antes mencionado
                     bluetoothIn.obtainMessage(handlerState, bytes, -1, readMessage).sendToTarget();
                 } catch (IOException e) {
                     break;
@@ -346,13 +315,11 @@ public class ConnectedActivity extends AppCompatActivity implements SensorEventL
         }
 
 
-        //write method
         public void write(String input) {
-            byte[] msgBuffer = input.getBytes();           //converts entered String into bytes
+            byte[] msgBuffer = input.getBytes();
             try {
-                mmOutStream.write(msgBuffer);                //write bytes over BT connection via outstream
+                mmOutStream.write(msgBuffer);
             } catch (IOException e) {
-                //if you cannot write, close the application
                 showToast("La conexion fallo");
                 finish();
 

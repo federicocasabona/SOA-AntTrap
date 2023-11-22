@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     public Button buscar_disp;
     private ArrayList<BluetoothDevice> mDeviceList = new ArrayList<BluetoothDevice>();
     private BluetoothAdapter mBluetoothAdapter;
-    //private ProgressDialog mProgressDlg;
     static final int MULTIPLE_PERMISSIONS = 10;
 
     String[] permissions= new String[]{
@@ -52,14 +51,6 @@ public class MainActivity extends AppCompatActivity {
         buscar_disp.setOnClickListener(botonesListeners);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        /*mProgressDlg = new ProgressDialog(this);
-
-        mProgressDlg.setMessage("Buscando dispositivos...");
-        mProgressDlg.setCancelable(false);
-
-        //se asocia un listener al boton cancelar para la ventana de dialogo ue busca los dispositivos bluethoot
-        mProgressDlg.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancelar", btnCancelarDialogListener);*/
 
         if (checkPermissions())
         {
@@ -95,56 +86,30 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("MissingPermission")
         public void onReceive(Context context, Intent intent) {
 
-            //Atraves del Intent obtengo el evento de Bluethoot que informo el broadcast del SO
             String action = intent.getAction();
-            showToast("Action: " + action);
-            //Si cambio de estado el Bluethoot(Activado/desactivado)
             if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action))
             {
-                //Obtengo el parametro, aplicando un Bundle, que me indica el estado del Bluethoot
                 final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-
-                //Si esta activado
                 if (state == BluetoothAdapter.STATE_ON)
                 {
                     showToast("Activar");
-
-                    //showEnabled();
                 }
             }
-            //Si se inicio la busqueda de dispositivos bluethoot
             else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action))
             {
-                //Creo la lista donde voy a mostrar los dispositivos encontrados
                 mDeviceList = new ArrayList<BluetoothDevice>();
-
-                //muestro el cuadro de dialogo de busqueda
-                //mProgressDlg.show();
-                showToast("Buscando dispositivos");
             }
-            //Si finalizo la busqueda de dispositivos bluethoot
             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))
             {
                 unregisterReceiver(mReceiver);
-                //se cierra el cuadro de dialogo de busqueda
-                //mProgressDlg.dismiss();
-
-                //se inicia el activity DeviceListActivity pasandole como parametros, por intent,
-                //el listado de dispositovos encontrados
                 Intent newIntent = new Intent(MainActivity.this, DeviceListActivity.class);
-
                 newIntent.putParcelableArrayListExtra("device.list", mDeviceList);
-
                 startActivity(newIntent);
             }
-            //si se encontro un dispositivo bluethoot
             else if (BluetoothDevice.ACTION_FOUND.equals(action))
             {
-                //Se lo agregan sus datos a una lista de dispositivos encontrados
                 BluetoothDevice device = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
                 mDeviceList.add(device);
-                showToast("Dispositivo Encontrado:" + device.getName());
             }
         }
     };
@@ -163,17 +128,12 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    //Metodo que chequea si estan habilitados los permisos
     private  boolean checkPermissions() {
         int result;
         List<String> listPermissionsNeeded = new ArrayList<>();
-
-        //Se chequea si la version de Android es menor a la 6
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
         }
-
-
         for (String p:permissions) {
             result = ContextCompat.checkSelfPermission(this,p);
             if (result != PackageManager.PERMISSION_GRANTED) {
@@ -193,14 +153,12 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case MULTIPLE_PERMISSIONS: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permissions granted.
-                    enableComponent(); // Now you call here what ever you want :)
+                    enableComponent();
                 } else {
                     String perStr = "";
                     for (String per : permissions) {
                         perStr += "\n" + per;
                     }
-                    // permissions list of don't granted permission
                     Toast.makeText(this, "ATENCION:falta de Permisos:" + perStr, Toast.LENGTH_LONG).show();
                 }
                 return;
@@ -210,37 +168,29 @@ public class MainActivity extends AppCompatActivity {
 
     protected  void enableComponent()
     {
-        //se determina si existe bluethoot en el celular
         if (mBluetoothAdapter == null)
         {
-            //si el celular no soporta bluethoot
             showToast("Dispositivo no compatible con bluetooth");
         }
         else
         {
-            //se determina si esta activado el bluethoot
             if (mBluetoothAdapter.isEnabled())
             {
-                //se informa si esta habilitado
                 showToast("Bluetooth encendido");
             }
             else
             {
-                //se informa si esta deshabilitado
                 showToast("Bluetooth apagado");
             }
         }
 
-
-        //se definen un broadcastReceiver que captura el broadcast del SO cuando captura los siguientes eventos:
         IntentFilter filter = new IntentFilter();
 
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED); //Cambia el estado del Bluethoot (Acrtivado /Desactivado)
-        filter.addAction(BluetoothDevice.ACTION_FOUND); //Se encuentra un dispositivo bluethoot al realizar una busqueda
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED); //Cuando se comienza una busqueda de bluethoot
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED); //cuando la busqueda de bluethoot finaliza
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
-        //se define (registra) el handler que captura los broadcast anterirmente mencionados.
         registerReceiver(mReceiver, filter);
 
         showToast("Receiver registrado");
